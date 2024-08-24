@@ -1,0 +1,33 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: library-json-deployment
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: library-json
+  template:
+    metadata:
+      labels:
+        app: library-json
+    spec:
+      containers:
+        - name: library-json-container
+          image: reemwaleed/library_json:latest
+          ports:
+            - containerPort: 5000
+          command: ["flask", "run", "--host=0.0.0.0", "--port=5000"]
+          env:
+            - name: FLASK_APP
+              value: "app.py"
+            - name: FLASK_ENV
+              value: "development"
+          volumeMounts:
+            - name: library-json-storage
+              mountPath: /app  # Path inside the container where the volume is mounted
+              subPath: data.json
+      volumes:
+        - name: library-json-storage
+          persistentVolumeClaim:
+            claimName: library-json-pvc
